@@ -250,7 +250,7 @@ angular.module('myApp.directives', []).
 			val: '=',
 			grouped: '='
 		},
-		link: function(scope, element, attrs) {	
+		link: function($scope, element, attrs) {	
 			
 			
 			var width = 960,

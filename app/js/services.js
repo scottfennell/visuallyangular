@@ -53,7 +53,37 @@ myServiceModule.factory('github', ['$http',
 		};
 		
 		GitHubService.prototype.graphFormatter = function(data){
-			
+			var links = [];
+			var hash = {};
+			var reverseLink = {};
+			for(var i = 0; i < data.length; i++){
+				var sha = data[i].sha;
+				hash[sha] = i;
+				if(data[i].parents){
+					var parentsHashes = [];
+					for(var j = 0; j < data[i].parents.length; j++){
+						var psha = data[i].parents[j].sha;
+						if(psha){
+							if(hash[psha]){
+								links.push({source:i,target:hash[psha]});
+							} else {
+								if(reverseLink[psha]){
+									reverseLink[psha].push(i);
+								} else {
+									reverseLink[psha] = [i];
+								}								
+							}
+						}						
+					}					
+				}
+				
+				if(reverseLink[sha]){
+					for(var l in reverseLink[sha]){
+						links.push({source: reverseLink[sha][l], target:i});
+					}
+				}
+			}			
+			return {graph: data, links: links};
 		};
 		
 		GitHubService.prototype.reformatGithubResponse = function(data) {
