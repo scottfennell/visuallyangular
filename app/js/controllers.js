@@ -9,10 +9,15 @@ angular.module('myApp.controllers', []).
   .controller('MyCtrl2', [function() {
 
   }])
-  .controller('D3Ctrl', ['$scope', function($scope) {
-  
+  .controller('D3Ctrl', ['$scope', 'github', function($scope,github) {
+	$scope.grouped = false;
 	$scope.message = "This is from the d3 controller";
-	console.log("Current scope", $scope);
+	var GitHub = github.get('angular','angular.js');
+	var data = GitHub.getData('graph');
+	data.then(function(formatted){
+		$scope.data = formatted;
+	})
+	
   
   
   
