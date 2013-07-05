@@ -259,25 +259,33 @@ angular.module('myApp.directives', []).
 			var color = d3.scale.category20();
 
 			var force = d3.layout.force()
-				.charge(-120)
-				.linkDistance(30)
+				.charge(-300)
+				.linkDistance(10)
 				.size([width, height]);
 
 			var svg = d3.select(element[0]).append("svg")
 				.attr("width", width)
 				.attr("height", height);
+		
+		
+			var x = d3.scale.linear().domain([0,1]).range([0,width]);
+			var xAxis = d3.svg.axis().scale(x).orient("bottom");
 			
+			svg.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + height + ")")
+				.call(xAxis)
 			
-			$scope.$watch('data',function(newVal,oldVal){
+			$scope.$watch('val',function(newVal,oldVal){				
 				if(newVal !== oldVal){
 					setData(newVal);
 				}
 			})
 			
 			
-			var setData = function(graph) {
+			var setData = function(graph) {				
 				force
-					.nodes(graph.nodes)
+					.nodes(graph.graph)
 					.links(graph.links)
 					.start();
 
@@ -285,27 +293,67 @@ angular.module('myApp.directives', []).
 					.data(graph.links)
 				  .enter().append("line")
 					.attr("class", "link")
-					.style("stroke-width", function(d) { return Math.sqrt(d.value); });
+					.style("stroke-width", function(d) { return 1; });
+			
+			;//Math.sqrt(d.value);
 
 				var node = svg.selectAll(".node")
-					.data(graph.nodes)
+					.data(graph.graph)
 				  .enter().append("circle")
 					.attr("class", "node")
 					.attr("r", 5)
-					.style("fill", function(d) { return color(d.group); })
+					.style("fill", function(d) { return color(d.group); })					
+					.on("click", function(d){ 
+						if(d.fixed === undefined){
+							d.fixed = 1;
+						} else{
+							d.fixed = 1 - d.fixed; 
+						}
+						force.start(); 
+					})
 					.call(force.drag);
+						
+				var text = svg.append("svg:g").selectAll("g")
+					.data(force.nodes())
+				  .enter().append("svg:g");
+
+				// A copy of the text with a thick white stroke for legibility.
+				text.append("svg:text")
+					.attr("x", 8)
+					.attr("y", ".31em")
+					.attr("class", "shadow")
+					.text(function(d) { return d.sha; });
+
+				text.append("svg:text")
+					.attr("x", 8)
+					.attr("y", ".31em")
+					.text(function(d) { return d.sha; });
+			
+				
 
 				node.append("title")
-					.text(function(d) { return d.name; });
+					.text(function(d) { return d.sha; });
+			
+				node.append("text").text(function(d){ return d.sha });
+				
+						
+//					.append("text")    
+//					.attr("dy", ".75em")					
+//					.attr("text-anchor", "middle")
+//					.text(function(d) { return d.sha });
 
 				force.on("tick", function() {
-				  link.attr("x1", function(d) { return d.source.x; })
-					  .attr("y1", function(d) { return d.source.y; })
-					  .attr("x2", function(d) { return d.target.x; })
-					  .attr("y2", function(d) { return d.target.y; });
+					link.attr("x1", function(d) { return d.source.x; })
+						.attr("y1", function(d) { return d.source.y; })
+						.attr("x2", function(d) { return d.target.x; })
+						.attr("y2", function(d) { return d.target.y; });
 
-				  node.attr("cx", function(d) { return d.x; })
-					  .attr("cy", function(d) { return d.y; });
+					node.attr("cx", function(d) { return d.x; })
+						.attr("cy", function(d) { return d.y; });
+			  
+					text.attr("transform", function(d) {
+						return "translate(" + d.x + "," + d.y + ")";
+					});
 				});
 			}
 			

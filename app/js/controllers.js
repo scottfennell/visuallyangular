@@ -12,7 +12,7 @@ angular.module('myApp.controllers', []).
   .controller('D3Ctrl', ['$scope', 'github', function($scope,github) {
 	$scope.grouped = false;
 	$scope.message = "This is from the d3 controller";
-	var GitHub = github.get('angular','angular.js');
+	var GitHub = github.get('twitter','bootstrap');
 	var data = GitHub.getData('graph');
 	data.then(function(formatted){
 		$scope.data = formatted;
